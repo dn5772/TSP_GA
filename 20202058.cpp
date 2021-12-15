@@ -7,17 +7,15 @@
 
 using namespace std;
 
-double dist(vector<double> &x, vector<double> &y){
+inline double dist(vector<double> &x, vector<double> &y){
 	return sqrt(pow(x[0] - y[0], 2) + pow(x[1] - y[1], 2));
 }
 
 int main(){
-	ifstream fs;
-	string f_buf, s_buf;
-
 	ifstream data("TSP.csv");
     string line;
-    vector<vector<double>> arr;
+    vector<vector<double>> vertex;
+
     while(getline(data,line)){
         stringstream lineStream(line);
         string cell;
@@ -25,7 +23,7 @@ int main(){
         while(getline(lineStream,cell,',')){
             row.push_back(stod(cell));
         }
-        arr.push_back(row);
+        vertex.push_back(row);
     }
 
 
@@ -33,9 +31,9 @@ int main(){
 	// 	printf("%.16f %.16f\n", arr[i][0], arr[i][1]);
 	// }
 
-	printf("%.16f \n", dist(arr[0], arr[1]));
+	printf("%.16f \n", dist(vertex[0], vertex[1]));
 	
-	fs.close();
+	data.close();
 
 	return 0;
 }
