@@ -7,12 +7,13 @@
 
 using namespace std;
 
-double arr[1000][2];
+double dist(vector<double> &x, vector<double> &y){
+	return sqrt(pow(x[0] - y[0], 2) + pow(x[1] - y[1], 2));
+}
 
 int main(){
 	ifstream fs;
 	string f_buf, s_buf;
-	int i = 0;
 
 	ifstream data("TSP.csv");
     string line;
@@ -28,10 +29,11 @@ int main(){
     }
 
 
-	for (i=0; i<1000; i++){
-		printf("%.16f %.16f\n", arr[i][0], arr[i][1]);
-		// cout << arr[i][0] << " " << arr[i][1] << endl;
-	}
+	// for (int i=0; i<1000; i++){
+	// 	printf("%.16f %.16f\n", arr[i][0], arr[i][1]);
+	// }
+
+	printf("%.16f \n", dist(arr[0], arr[1]));
 	
 	fs.close();
 
