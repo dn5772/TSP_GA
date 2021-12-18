@@ -140,7 +140,7 @@ int main(){
 
 	Path p(a);
 
-	cout << p.get_cost() << "\n" <<p.get_bestcost() << endl;
+	cout << p.get_cost() << "\n" <<p.get_bestcost() << "\n" << p.get_bestindex() <<endl;
 	
 	data.close();
 
