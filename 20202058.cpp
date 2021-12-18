@@ -29,7 +29,9 @@ class Path{
 	Path(vector<int> a);
 	~Path();
 
-	double getcost();
+	double get_cost();
+	double get_bestcost();
+	int get_bestindex();
 	int get_x(int index);
 
 	void cal_cost();
@@ -57,7 +59,11 @@ Path::~Path(){
 	x.~vector();
 }
 
-double Path::getcost(){return tot_cost;}
+double Path::get_cost(){return tot_cost;}
+
+double Path::get_bestcost(){return best_cost;}
+
+int Path::get_bestindex(){return best_index;}
 
 int Path::get_x(int index){return x[index];}
 
@@ -124,8 +130,17 @@ int main(){
         vertex.push_back(row);
     }
 
+	// printf("%.16f \n", dist(vertex[0], vertex[1]));
+	vector<int> a[1000];
 
-	printf("%.16f \n", dist(vertex[0], vertex[1]));
+	for (int i=0; i<999; i++){
+		a[i] = i+1;
+	}
+	a[999] = 0;
+
+	Path p(a);
+
+	cout << p.get_cost() << "\n" <<p.get_bestcost() << endl;
 	
 	data.close();
 
