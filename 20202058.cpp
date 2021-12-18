@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <list>
+#include <cmath>
 
 #define S 250 // promising size
 
@@ -143,7 +143,7 @@ int main(){
 
 	cout << p.get_cost() << "\n" << p.get_bestcost() << "\n" << p.get_bestindex() << endl;
 
-	// p.~Path();
+	p.~Path();
 
 	data.close();
 	return 0;
