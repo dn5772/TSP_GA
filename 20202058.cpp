@@ -44,7 +44,7 @@ Path::Path(){
 	x.resize(1000);
 	best_index = 0;
 	tot_cost = 0;
-	best_cost - 0;
+	best_cost = 0;
 }
 
 Path::Path(vector<int> a){
@@ -96,7 +96,6 @@ void Path::cal_cost(){
 			best_index++;
 		}
 	}
-
 }
 
 bool Path::operator> (Path& pa){
@@ -131,18 +130,21 @@ int main(){
     }
 
 	// printf("%.16f \n", dist(vertex[0], vertex[1]));
-	vector<int> a[1000];
+
+	vector<int> aa(1000);
 
 	for (int i=0; i<999; i++){
-		a[i] = i+1;
+		aa[i] = i+1;
 	}
-	a[999] = 0;
 
-	Path p(a);
+	aa[999] = 0;
 
-	cout << p.get_cost() << "\n" <<p.get_bestcost() << "\n" << p.get_bestindex() <<endl;
-	
+	Path p(aa);
+
+	cout << p.get_cost() << "\n" << p.get_bestcost() << "\n" << p.get_bestindex() << endl;
+
+	// p.~Path();
+
 	data.close();
-
 	return 0;
 }
