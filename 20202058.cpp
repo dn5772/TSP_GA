@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <random>
 
 #define S 250 // promising size
 
@@ -38,6 +39,7 @@ class Path{
 
 	bool operator> (Path& pa);
 	bool operator>= (Path& pa);
+	bool operator== (Path& pa);
 };
 
 Path::Path(){
@@ -108,6 +110,11 @@ bool Path::operator>= (Path& pa){
 	else {return true;}
 }
 
+bool Path::operator== (Path& pa){
+	if (this->tot_cost == pa.tot_cost) {return true;}
+	else {return false;}
+}
+
 
 //////////////////////////////////////////////////////
 
@@ -130,6 +137,8 @@ int main(){
     }
 
 	// printf("%.16f \n", dist(vertex[0], vertex[1]));
+	
+	Path p;
 
 	vector<int> aa(1000);
 
@@ -139,9 +148,7 @@ int main(){
 
 	aa[999] = 0;
 
-	Path p(aa);
 
-	cout << p.get_cost() << "\n" << p.get_bestcost() << "\n" << p.get_bestindex() << endl;
 
 	p.~Path();
 
