@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <cmath>
 
 using namespace std;
 
@@ -33,10 +34,6 @@ int main(){
 
 	while (getline(path,line)){
 		a.push_back(stoi(line));
-	}
-
-	for (int i=0; i<1000; i++){
-		cout << a[i] << endl;
 	}
 
 	double cost = 0;
