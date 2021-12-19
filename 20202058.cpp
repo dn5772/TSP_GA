@@ -26,10 +26,11 @@ class Path{
 	double tot_cost;
 	int best_index;
 	double best_cost;
-	vector<double> cost;
+
 
 	public :
 	vector<int> x;
+	vector<double> cost;
 	Path();
 	Path(vector<int> a);
 	~Path();
@@ -100,17 +101,22 @@ void Path::cal_cost(){
 	for (int i=S; i<1000; i++){
 		int curdist = W[j][x[j]];
 		tot_cost += curdist;
+		
+		cost[k] += curdist;
+		if ((i+1)%10 == 0){
+			k++;
+		}
+
 
 		curcost += curdist - W[firstIndex][x[firstIndex]];
-
 		if (curcost<best_cost){
 			best_cost = curcost;
 			best_index = j;
 		}
+
 		j = x[j];
 		firstIndex = x[firstIndex];
 	}
-
 }
 
 bool Path::operator> (Path& pa){
@@ -177,7 +183,7 @@ int main(){
 
 			int tmp = aa[a];
 			aa[a] = aa[b];
-			aa[b] = aa[tmp];
+			aa[b] = tmp;
 		}
 
 		Path pp(aa);
@@ -188,6 +194,9 @@ int main(){
 
 	for (itor=p.begin(); itor!=p.end(); itor++){
 		printf("%.16f, %.16f\n", itor->get_cost(), itor->get_bestcost());
+		double tcost = 0;
+		for (int i=0; i<100; i++){tcost += itor->cost[i];}
+		printf("%.16f ,\n", tcost);
 	}
 
 	data.close();
