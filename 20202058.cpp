@@ -21,12 +21,12 @@ inline double dist(vector<double> &x, vector<double> &y){
 
 class Path{
 	private :
-	vector<int> x;
 	double tot_cost;
 	int best_index;
 	double best_cost;
 
 	public :
+	vector<int> x;
 	Path();
 	Path(vector<int> a);
 	~Path();
@@ -34,7 +34,6 @@ class Path{
 	double get_cost();
 	double get_bestcost();
 	int get_bestindex();
-	int get_x(int index);
 
 	void redefine(vector<int> a);
 
@@ -67,8 +66,6 @@ double Path::get_bestcost(){return best_cost;}
 
 int Path::get_bestindex(){return best_index;}
 
-int Path::get_x(int index){return x[index];}
-
 void Path::redefine(vector<int> a){
 	x.~vector();
 	x = a;
@@ -81,10 +78,11 @@ void Path::cal_cost(){
 	best_cost = 0;
 	double curcost = 0;
 
-	for (int i=0; i<S; i++){
+	int j = 0;
 
-		int city_1 = i;
-		int city_2 = x[i];
+	for (int i=0; i<S; i++){
+		int city_1 = j;
+		int city_2 = x[j];
 
 		tot_cost += dist(vertex[city_1], vertex[city_2]);
 	}
@@ -92,19 +90,20 @@ void Path::cal_cost(){
 	best_cost = curcost = tot_cost;
 
 	for (int i=S; i<1000; i++){
-		int city_1 = i;
-		int city_2 = x[i];
+		int city_1 = j;
+		int city_2 = x[j];
 
 		int curdist = dist(vertex[city_1], vertex[city_2]);
 		tot_cost += curdist;
 
-		curcost = curcost + curdist - dist(vertex[i-S], vertex[x[i-S]]);
+		curcost = curcost + curdist - dist(vertex[best_index], vertex[x[best_index]]);
 
 		if (curcost<best_cost){
 			best_cost = curcost;
-			best_index = i;
+			best_index = j;
 		}
 	}
+	j = x[j];
 }
 
 bool Path::operator> (Path& pa){
@@ -129,7 +128,7 @@ bool comper(Path a, Path b){
 	return b>a;
 }
 
-
+double W[1000][1000];
 
 int main(){
 	ifstream data("TSP.csv");
@@ -144,6 +143,12 @@ int main(){
         }
         vertex.push_back(row);
     }
+
+	for (int i=0; i<1000; i++){
+		for (int j=i+1; j<1000; j++){
+			W[i][j] = W[j][i] = dist(vertex[i], vertex[j]);
+		}
+	}
 
 	random_device rd;
 	mt19937 gen(rd());
