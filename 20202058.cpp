@@ -149,7 +149,7 @@ int main(){
 	mt19937 gen(rd());
 	uniform_int_distribution<int> dis(0, 999);
 
-	vector<Path> p(10);
+	vector<Path> p;
 
 	vector<int> aa(1000);
 	for (int i=0; i<999; i++){
@@ -167,7 +167,8 @@ int main(){
 			aa[b] = aa[tmp];
 		}
 
-		p[i].redefine(aa);
+		Path pp(aa);
+		p.push_back(pp);
 	}
 
 	sort(p.begin(), p.end(), comper);
