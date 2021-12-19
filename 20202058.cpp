@@ -4,6 +4,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <list>
 #include <cmath>
 #include <random>
 
@@ -35,7 +36,7 @@ class Path{
 	double get_bestcost();
 	int get_bestindex();
 
-	void redefine(vector<int> a);
+	void repath(vector<int> a);
 
 	void cal_cost();
 
@@ -66,7 +67,7 @@ double Path::get_bestcost(){return best_cost;}
 
 int Path::get_bestindex(){return best_index;}
 
-void Path::redefine(vector<int> a){
+void Path::repath(vector<int> a){
 	x.~vector();
 	x = a;
 	cal_cost();
@@ -154,7 +155,8 @@ int main(){
 	mt19937 gen(rd());
 	uniform_int_distribution<int> dis(0, 999);
 
-	vector<Path> p;
+	list<Path> p;
+	list<Path>::iterator itor = p.begin();
 
 	vector<int> aa(1000);
 	for (int i=0; i<999; i++){
@@ -176,10 +178,10 @@ int main(){
 		p.push_back(pp);
 	}
 
-	sort(p.begin(), p.end(), comper);
+	p.sort(comper);
 
-	for (int i=0; i<10; i++){
-		printf("%.16f\n", p[i].get_cost());
+	for (itor=p.begin(); itor!=p.end(); itor++){
+		printf("%.16f\n", *itor.get_cost());
 	}
 
 	data.close();
