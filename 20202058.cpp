@@ -58,7 +58,7 @@ Path::Path(vector<int> a){
 }
 
 Path::~Path(){
-	x.~vector();
+	// x.~vector();
 }
 
 double Path::get_cost(){return tot_cost;}
@@ -126,7 +126,7 @@ bool Path::operator== (Path& pa){
 //////////////////////////////////////////////////////
 
 bool comper(Path a, Path b){
-	return a>b;
+	return b>a;
 }
 
 
