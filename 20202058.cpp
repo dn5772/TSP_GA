@@ -24,7 +24,8 @@ inline double dist(vector<double> &x, vector<double> &y){
 class Path{
 	private :
 	double tot_cost;
-	int best_index;
+	int firstIndex;
+	int lastIndex;
 	double best_cost;
 
 
@@ -37,7 +38,8 @@ class Path{
 
 	double get_cost();
 	double get_bestcost();
-	int get_bestindex();
+	int get_firstIndex();
+	int get_lastIndex();
 
 	void repath(vector<int> a);
 
@@ -51,7 +53,8 @@ class Path{
 Path::Path(){
 	x.resize(1000);
 	cost.resize(100);
-	best_index = 0;
+	firstIndex = -1;
+	lastIndex = -1;
 	tot_cost = 0;
 	best_cost = 0;
 }
@@ -70,7 +73,9 @@ double Path::get_cost(){return tot_cost;}
 
 double Path::get_bestcost(){return best_cost;}
 
-int Path::get_bestindex(){return best_index;}
+int Path::get_firstIndex(){return firstIndex;}
+
+int Path::get_lastIndex(){return lastIndex;}
 
 void Path::repath(vector<int> a){
 	x.~vector();
@@ -80,7 +85,7 @@ void Path::repath(vector<int> a){
 
 void Path::cal_cost(){
 	tot_cost = 0;
-	best_index = 0;
+	firstIndex = 0;
 	best_cost = 0;
 	double curcost = 0;
 
@@ -96,8 +101,9 @@ void Path::cal_cost(){
 	}
 
 	best_cost = curcost = tot_cost;
-	int firstIndex = 0;
+	lastIndex = j;
 
+	int newfirst = 0;
 	for (int i=S; i<1000; i++){
 		int curdist = W[j][x[j]];
 		tot_cost += curdist;
@@ -107,15 +113,16 @@ void Path::cal_cost(){
 			k++;
 		}
 
+		curcost += curdist - W[newfirst][x[newfirst]];
 
-		curcost += curdist - W[firstIndex][x[firstIndex]];
 		if (curcost<best_cost){
 			best_cost = curcost;
-			best_index = j;
+			firstIndex = newfirst;
+			lastIndex = x[j];
 		}
 
 		j = x[j];
-		firstIndex = x[firstIndex];
+		newfirst = x[newfirst];
 	}
 }
 
@@ -140,6 +147,27 @@ bool Path::operator== (Path& pa){
 bool comper(Path a, Path b){
 	return b>a;
 }
+
+void crossover(Path a, Path b){  // a < b
+	vector<int> newX(1000);
+	vector<int> cheak;
+
+	int index = a.get_firstIndex();
+	for (int i=0; i<S; i++){
+		newX[index] = a.x[index];
+		cheak.push_back(newX[index]);
+		index = a.x[index];
+	}
+
+	index = a.get_lastIndex();
+
+	for (int i=S; i<1000; i++){
+		list<int> ind;
+		ind.push_back();
+	}
+	
+}
+
 
 
 
@@ -192,12 +220,18 @@ int main(){
 
 	p.sort(comper);
 
+///////////////////////////////////////////////////////////
 	for (itor=p.begin(); itor!=p.end(); itor++){
 		printf("%.16f, %.16f\n", itor->get_cost(), itor->get_bestcost());
 		double tcost = 0;
 		for (int i=0; i<100; i++){tcost += itor->cost[i];}
 		printf("%.16f ,\n", tcost);
+		printf("%d %d\n", itor->get_firstIndex(), itor->get_lastIndex());
 	}
+	for (int i=0; i<1000; i++)
+///////////////////////////////////////////////////////////
+
+	
 
 	data.close();
 	return 0;
