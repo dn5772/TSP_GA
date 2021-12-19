@@ -35,6 +35,8 @@ class Path{
 	int get_bestindex();
 	int get_x(int index);
 
+	void redefine(vector<int> a);
+
 	void cal_cost();
 
 	bool operator> (Path& pa);
@@ -69,6 +71,11 @@ int Path::get_bestindex(){return best_index;}
 
 int Path::get_x(int index){return x[index];}
 
+void Path::redefine(vector<int> a){
+	x.~vector();
+	x = a;
+}
+
 void Path::cal_cost(){
 	tot_cost = 0;
 	best_index = 0;
@@ -91,11 +98,11 @@ void Path::cal_cost(){
 		int curdist = dist(vertex[city_1], vertex[city_2]);
 		tot_cost += curdist;
 
-		double a = best_cost + curdist - dist(vertex[best_index], vertex[x[best_index]]);
+		double a = best_cost + curdist - dist(vertex[i-S], vertex[x[i-S]]);
 
 		if (a<best_cost){
 			best_cost = a;
-			best_index++;
+			best_index = i;
 		}
 	}
 }
@@ -136,21 +143,18 @@ int main(){
         vertex.push_back(row);
     }
 
-	// printf("%.16f \n", dist(vertex[0], vertex[1]));
-	
-	Path p;
+	Path p[10];
 
 	vector<int> aa(1000);
-
 	for (int i=0; i<999; i++){
 		aa[i] = i+1;
 	}
-
 	aa[999] = 0;
 
+	for (int i=0; i<10; i++){
 
+	}
 
-	p.~Path();
 
 	data.close();
 	return 0;
