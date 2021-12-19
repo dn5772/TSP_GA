@@ -27,7 +27,7 @@ int main(){
 
 	data.close();
 
-	ifstream path("ex.csv");
+	ifstream path("path.csv");
 
 	vector<int> a;
 
@@ -35,10 +35,14 @@ int main(){
 		a.push_back(stoi(line));
 	}
 
+	for (int i=0; i<1000; i++){
+		cout << a[i] << endl;
+	}
+
 	double cost = 0;
 
 	for (int i=0; i<999; i++){
-		cost += dist(vertex[a[i]], vertex[a[i]]);
+		cost = cost + dist(vertex[a[i]], vertex[a[i+1]]);
 	}
 
 	cost += dist(vertex[a[999]], vertex[a[0]]);
