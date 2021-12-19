@@ -57,6 +57,7 @@ Path::Path(){
 
 Path::Path(vector<int> a){
 	x = a;
+	cost.resize(100);
 	cal_cost();
 }
 
@@ -90,7 +91,7 @@ void Path::cal_cost(){
 		if ((i+1)%10 == 0){
 			k++;
 		}
-		j++;
+		j = x[j];
 	}
 
 	best_cost = curcost = tot_cost;
@@ -106,10 +107,10 @@ void Path::cal_cost(){
 			best_cost = curcost;
 			best_index = j;
 		}
-		j++;
+		j = x[j];
 		firstIndex = x[firstIndex];
 	}
-	j = x[j];
+
 }
 
 bool Path::operator> (Path& pa){
