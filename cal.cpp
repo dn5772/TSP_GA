@@ -44,6 +44,7 @@ int main(){
 
 	cost += dist(vertex[a[999]], vertex[a[0]]);
 
-	cout << cost << endl;
+	printf("%.16f\n", cost);
 	
 }
+// best cost 51314.7155040071593248
