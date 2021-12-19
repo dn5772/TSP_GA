@@ -18,6 +18,7 @@ inline double dist(vector<double> &x, vector<double> &y){
 }
 
 ///////////////////////  Class Path  //////////////////////////
+
 class Path{
 	private :
 	vector<int> x;
@@ -53,9 +54,6 @@ Path::Path(){
 
 Path::Path(vector<int> a){
 	x = a;
-	best_index = 0;
-	tot_cost = 0;
-	best_cost = 0;
 	cal_cost();
 }
 
@@ -74,12 +72,14 @@ int Path::get_x(int index){return x[index];}
 void Path::redefine(vector<int> a){
 	x.~vector();
 	x = a;
+	cal_cost();
 }
 
 void Path::cal_cost(){
 	tot_cost = 0;
 	best_index = 0;
 	best_cost = 0;
+	double curcost = 0;
 
 	for (int i=0; i<S; i++){
 
@@ -89,7 +89,7 @@ void Path::cal_cost(){
 		tot_cost += dist(vertex[city_1], vertex[city_2]);
 	}
 
-	best_cost = tot_cost;
+	best_cost = curcost = tot_cost;
 
 	for (int i=S; i<1000; i++){
 		int city_1 = i;
@@ -98,10 +98,10 @@ void Path::cal_cost(){
 		int curdist = dist(vertex[city_1], vertex[city_2]);
 		tot_cost += curdist;
 
-		double a = best_cost + curdist - dist(vertex[i-S], vertex[x[i-S]]);
+		curcost = curcost + curdist - dist(vertex[i-S], vertex[x[i-S]]);
 
-		if (a<best_cost){
-			best_cost = a;
+		if (curcost<best_cost){
+			best_cost = curcost;
 			best_index = i;
 		}
 	}
@@ -125,7 +125,9 @@ bool Path::operator== (Path& pa){
 
 //////////////////////////////////////////////////////
 
-
+bool comper(Path a, Path b){
+	return a>b;
+}
 
 
 
@@ -143,7 +145,11 @@ int main(){
         vertex.push_back(row);
     }
 
-	Path p[10];
+	random_device rd;
+	mt19937 gen(rd());
+	uniform_int_distribution<int> dis(0, 999);
+
+	vector<Path> p(10);
 
 	vector<int> aa(1000);
 	for (int i=0; i<999; i++){
@@ -152,9 +158,23 @@ int main(){
 	aa[999] = 0;
 
 	for (int i=0; i<10; i++){
+		for (int j=0; j<2000; j++){
+			int a = dis(gen);
+			int b = dis(gen);
 
+			int tmp = aa[a];
+			aa[a] = aa[b];
+			aa[b] = aa[tmp];
+		}
+
+		p[i].redefine(aa);
 	}
 
+	sort(p.begin(), p.end(), comper);
+
+	for (int i=0; i<10; i++){
+		printf("%.16f\n", p[i].get_cost());
+	}
 
 	data.close();
 	return 0;
