@@ -2,3 +2,6 @@
 .vscode
 
 *.exe
+*.csv
+*.png
+*.xlsx
