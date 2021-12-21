@@ -116,7 +116,6 @@ void Path::cal_cost(){
 			firstIndex = x[newfirst];
 			lastIndex = x[j];
 		}
-
 		j = x[j];
 		newfirst = x[newfirst];
 	}
@@ -147,7 +146,7 @@ bool comper(Path &a, Path &b){
 }
 
 double checkCost(Path &pa, int index){
-	double costSum = 0;
+	double costSum = 0.0;
 	for (int i=0; i<10; i++){
 		costSum += W[index][pa.x[index]];
 		index = pa.x[index];
@@ -176,21 +175,19 @@ Path crossover(Path &a, Path &b){  // a < b
 		if (a_cost < b_cost){
 			for (int i=0; i<10; i++){
 				totsum+=index;
-				if ((newX[a.x[index] == -1])){
+				if (newX[a.x[index]] == -1){
 					newX[index] = a.x[index];
 					index = a.x[index];
-				}else if (newX[b.x[index] == -1]){
+				}else if (newX[b.x[index]] == -1){
 					newX[index] = b.x[index];
 					index = b.x[index];
 				}else {
-					double minimum = a.get_cost();
+					double minimum = 200;
 					int minindex = a.get_firstIndex();
-					for (int i=0; i<1000; i++){
-						if ((W[index][i]<minimum)&&(index!=i)){
-							if (newX[i]==-1){
-							minimum = W[index][i];
-							minindex = i;
-							}
+					for (int j=0; j<1000; j++){
+						if ((W[index][j]<minimum)&&(index!=j)&&(newX[j]==-1)){
+							minimum = W[index][j];
+							minindex = j;
 						}
 					}
 					newX[index] = minindex;
@@ -200,35 +197,33 @@ Path crossover(Path &a, Path &b){  // a < b
 		}else {
 			for (int i=0; i<10; i++){
 				totsum += index;
-				if (newX[b.x[index] == -1]){
+				if (newX[b.x[index]] == -1){
 					newX[index] = b.x[index];
 					index = b.x[index];	
-				}else if (newX[a.x[index] == -1]){
+				}else if (newX[a.x[index]] == -1){
 					newX[index] = a.x[index];
 					index = a.x[index];
 				}else {
-					double minimum = a.get_cost();
+					double minimum = 200;
 					int minindex = a.get_firstIndex();
-					for (int i=0; i<1000; i++){
-						if ((W[index][i]<minimum)&&(index!=i)&&(newX[i]==-1)){
-							minimum = W[index][i];
-							minindex = i;
+					for (int j=0; j<1000; j++){
+						if ((W[index][j]<minimum)&&(index!=j)&&(newX[j]==-1)){
+							minimum = W[index][j];
+							minindex = j;
 						}
 					}
 					newX[index] = minindex;
-					index = minindex;	
+					index = minindex;
 				}
 			}
 		}
 	}
-
 	// for (int i=0; i<1000; i++){
 	// 	printf("%d -> ", newX[i]);
 	// }
 	printf("sum : %d \n", totsum);
 
 	Path pa(newX);
-
 	return pa;
 }
 
@@ -255,36 +250,44 @@ int main(){
 		}
 	}
 
-	random_device rd;
-	mt19937 gen(rd());
-	uniform_int_distribution<int> dis(0, 999);
-
 	list<Path> p;
 	list<Path>::iterator itor = p.begin();
 	list<Path>::iterator itor2;
 
+	random_device rd;
+	mt19937 gen(rd());
+	uniform_int_distribution<int> dis(0, 999);
+
 	vector<int> aa;
-	for (int i=0; i<999; i++){
-		aa.push_back(i+1);
-	}
-	aa.push_back(0);
-	Path pa(aa);
-	p.push_back(pa);
+	// for (int i=0; i<999; i++){
+	// 	aa.push_back(i+1);
+	// }
+	// aa.push_back(0);
+	// Path pa(aa); // 0~999 순서대로
+	// p.push_back(pa);
 
-	for (int i=0; i<9; i++){
-		for (int j=0; j<2000; j++){
-			int a = dis(gen);
-			int b = dis(gen);
-
-			int tmp = aa[a];
-			aa[a] = aa[b];
-			aa[b] = tmp;
+	Path pa;
+	for (int k=0; k<10; k++){
+		aa.assign(1000, -1);
+		int index = dis(gen);
+		int firstI = index;
+		for (int i=0; i<1000; i++){
+			double minimum = 200;
+			int minindex = firstI;
+			for (int j=0; j<1000; j++){
+				if ((W[index][j]<minimum)&&(index!=j)&&(aa[j]==-1)){
+					minimum = W[index][j];
+					minindex = j;
+				}
+			}
+			aa[index] = minindex;
+			index = minindex;
 		}
-		Path pp(aa);
-		p.push_back(pp);
+		pa.repath(aa);
+		p.push_back(pa);
 	}
-	p.sort(comper);
 
+	p.sort(comper);
 ///////////////////////////////////////////////////////////
 	for (itor=p.begin(); itor!=p.end(); itor++){
 		printf("%.16f, %.16f\n", itor->get_cost(), itor->get_bestcost());
@@ -294,23 +297,23 @@ int main(){
 		// printf("%d %d\n", itor->get_firstIndex(), itor->get_lastIndex());
 	}
 ///////////////////////////////////////////////////////////
-	for (int c=0; c<100; c++){
+	for (int c=0; c<10; c++){
 		itor = itor2 = p.begin();
 		itor2++;
 		for (int i=0; i<5; i++){
 			printf("%.16f, %.16f\n", itor->get_cost(), itor2->get_cost());
 			p.push_back(crossover(*itor, *itor2));
-			printf("---Crossover---\n");
+			printf("---Crossover--- : %.16f\n", p.back().get_cost());
 			itor++;
 			itor2++;
 		}
 		p.sort(comper);
-		for (int i=0; i<5; i++){p.pop_back();}
+		for (int i=0; i<5; i++) {p.pop_back();}
 
 		printf("GEN%d : %.16f\n", c, p.front().get_cost());
 	}
 
-	free(W);
+	// free(W);
 	data.close();
 	return 0;
 }
