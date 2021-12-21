@@ -31,7 +31,7 @@ class Path{
 
 	public :
 	vector<int> x;
-	vector<double> cost;
+	// vector<double> cost;
 	Path();
 	Path(vector<int> a);
 	~Path();
@@ -52,7 +52,7 @@ class Path{
 
 Path::Path(){
 	x.resize(1000);
-	cost.resize(100);
+	// cost.resize(100);
 	firstIndex = -1;
 	lastIndex = -1;
 	tot_cost = 0;
@@ -61,7 +61,7 @@ Path::Path(){
 
 Path::Path(vector<int> a){
 	x.swap(a);
-	cost.resize(100);
+	// cost.resize(100);
 	cal_cost();
 }
 
@@ -83,19 +83,20 @@ void Path::repath(vector<int> a){
 }
 
 void Path::cal_cost(){
+	printf("index sum : ");
 	tot_cost = 0;
 	firstIndex = 0;
+	lastIndex = S-1;
 	best_cost = 0;
 	double curcost = 0;
+
+	int totsum=0;
 
 	int j = 0, k = 0;
 
 	for (int i=0; i<S; i++){
+		totsum+=j;
 		tot_cost += W[j][x[j]];
-		cost[k] += W[j][x[j]];
-		if ((i+1)%10 == 0){
-			k++;
-		}
 		j = x[j];
 	}
 
@@ -104,25 +105,23 @@ void Path::cal_cost(){
 
 	int newfirst = 0;
 	for (int i=S; i<1000; i++){
+		totsum+=j;
 		int curdist = W[j][x[j]];
 		tot_cost += curdist;
-		
-		cost[k] += curdist;
-		if ((i+1)%10 == 0){
-			k++;
-		}
 
-		curcost += curdist - W[newfirst][x[newfirst]];
+		curcost = curcost + curdist - W[newfirst][x[newfirst]];
 
 		if (curcost<best_cost){
 			best_cost = curcost;
-			firstIndex = newfirst;
+			firstIndex = x[newfirst];
 			lastIndex = x[j];
 		}
 
 		j = x[j];
 		newfirst = x[newfirst];
 	}
+
+	printf("%d\n", totsum);
 }
 
 bool Path::operator> (Path& pa){
@@ -147,51 +146,86 @@ bool comper(Path &a, Path &b){
 	return b>a;
 }
 
+double checkCost(Path &pa, int index){
+	double costSum = 0;
+	for (int i=0; i<10; i++){
+		costSum += W[index][pa.x[index]];
+		index = pa.x[index];
+	}
+	return costSum;
+}
+
 Path crossover(Path &a, Path &b){  // a < b
 	vector<int> newX;
 	newX.assign(1000, -1);
+
+	int totsum=0;
 	
 	int index = a.get_firstIndex();
+
 	for (int i=0; i<S; i++){
+		totsum+=index;
 		newX[index] = a.x[index];
 		index = a.x[index];
 	}
 
-	index = a.get_lastIndex();
+	for (int k=0; k<75; k++){
+		double a_cost = checkCost(a, index);
+		double b_cost = checkCost(b, index);
 
-	for (int i=S; i<1000; i++){
-		bool chek = false;
-		if (a.get_bestcost() < b.get_bestcost()){
-			if (newX[a.x[index] == -1]){
-				newX[index] = a.x[index];
-				index = a.x[index];
-			}else if (newX[b.x[index] == -1]){
-				newX[index] = b.x[index];
-				index = b.x[index];
-			}else {chek = true;}
-		}else{
-			if (newX[b.x[index] == -1]){
-				newX[index] = b.x[index];
-				index = b.x[index];
-			}else if (newX[a.x[index] == -1]){
-				newX[index] = a.x[index];
-				index = a.x[index];
-			}else {chek = true;}
-		}
-		if (chek){
-			printf("bb $$\n");
-			int minimum = a.get_cost();
-			int minindex = a.get_firstIndex();
-			for (int i=0; i<1000; i++){
-				if ((W[index][i]<minimum)&&(index!=i)&&(newX[i]==-1)){
-					minimum = W[index][i];
-					minindex = i;
+		if (a_cost < b_cost){
+			for (int i=0; i<10; i++){
+				totsum+=index;
+				if ((newX[a.x[index] == -1])){
+					newX[index] = a.x[index];
+					index = a.x[index];
+				}else if (newX[b.x[index] == -1]){
+					newX[index] = b.x[index];
+					index = b.x[index];
+				}else {
+					double minimum = a.get_cost();
+					int minindex = a.get_firstIndex();
+					for (int i=0; i<1000; i++){
+						if ((W[index][i]<minimum)&&(index!=i)){
+							if (newX[i]==-1){
+							minimum = W[index][i];
+							minindex = i;
+							}
+						}
+					}
+					newX[index] = minindex;
+					index = minindex;
 				}
 			}
-			newX[index] = minindex;
-			index = minindex;
+		}else {
+			for (int i=0; i<10; i++){
+				totsum += index;
+				if (newX[b.x[index] == -1]){
+					newX[index] = b.x[index];
+					index = b.x[index];	
+				}else if (newX[a.x[index] == -1]){
+					newX[index] = a.x[index];
+					index = a.x[index];
+				}else {
+					double minimum = a.get_cost();
+					int minindex = a.get_firstIndex();
+					for (int i=0; i<1000; i++){
+						if ((W[index][i]<minimum)&&(index!=i)&&(newX[i]==-1)){
+							minimum = W[index][i];
+							minindex = i;
+						}
+					}
+					newX[index] = minindex;
+					index = minindex;	
+				}
+			}
 		}
 	}
+
+	// for (int i=0; i<1000; i++){
+	// 	printf("%d -> ", newX[i]);
+	// }
+	printf("sum : %d \n", totsum);
 
 	Path pa(newX);
 
@@ -229,13 +263,15 @@ int main(){
 	list<Path>::iterator itor = p.begin();
 	list<Path>::iterator itor2;
 
-	vector<int> aa(1000);
+	vector<int> aa;
 	for (int i=0; i<999; i++){
-		aa[i] = i+1;
+		aa.push_back(i+1);
 	}
-	aa[999] = 0;
+	aa.push_back(0);
+	Path pa(aa);
+	p.push_back(pa);
 
-	for (int i=0; i<10; i++){
+	for (int i=0; i<9; i++){
 		for (int j=0; j<2000; j++){
 			int a = dis(gen);
 			int b = dis(gen);
@@ -244,7 +280,6 @@ int main(){
 			aa[a] = aa[b];
 			aa[b] = tmp;
 		}
-
 		Path pp(aa);
 		p.push_back(pp);
 	}
@@ -260,20 +295,19 @@ int main(){
 	}
 ///////////////////////////////////////////////////////////
 	for (int c=0; c<100; c++){
-		
-		itor = p.begin();
-		itor2 = p.end();
-		itor2--;
+		itor = itor2 = p.begin();
+		itor2++;
 		for (int i=0; i<5; i++){
 			printf("%.16f, %.16f\n", itor->get_cost(), itor2->get_cost());
 			p.push_back(crossover(*itor, *itor2));
-			printf("%.16f, %.16f\n", itor->get_cost(), itor2->get_cost());
+			printf("---Crossover---\n");
 			itor++;
-			itor2--;
+			itor2++;
 		}
 		p.sort(comper);
 		for (int i=0; i<5; i++){p.pop_back();}
-		printf("GEN%d : %16.f\n", c, p.front().get_cost());
+
+		printf("GEN%d : %.16f\n", c, p.front().get_cost());
 	}
 
 	free(W);
