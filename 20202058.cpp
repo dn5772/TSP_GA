@@ -158,7 +158,7 @@ bool comper(Path &a, Path &b){
 
 double checkCost(Path &pa, int index){
 	double costSum = 0.0;
-	for (int i=0; i<3; i++){
+	for (int i=0; i<10; i++){
 		costSum += W[index][pa.x[index]];
 		index = pa.x[index];
 	}
