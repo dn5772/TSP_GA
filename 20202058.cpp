@@ -8,9 +8,16 @@
 #include <cmath>
 #include <random>
 
-#define S 250 // promising size
-
 using namespace std;
+
+random_device rd;
+mt19937 gen(rd());
+uniform_int_distribution<int> dis(0, 999);
+uniform_int_distribution<int> dis_(0, 3);
+
+#define S 50 // promising size
+#define N 20
+
 
 vector<vector<double>> vertex;
 double W[1000][1000];
@@ -218,11 +225,42 @@ Path crossover(Path &a, Path &b){  // a < b
 	return pa;
 }
 
-Path mutation(Path &a){
+void mutation(Path &a){
 	for (int i=0; i<100; i++){
-		double firstCost = checkCost(a, i*10);
+		int first = dis(gen);
+		int index = first;
+		double firstCost = 0.0;
+		int newX[5];
+		for (int i=0; i<5; i++){
+			firstCost += W[index][a.x[index]];
+			index = a.x[index];
+			newX[i] = index;
+		}
+		for (int i=0; i<9; i++){
+			int a = dis_(gen); 
+			int b = dis_(gen);
+			int tmp = newX[a];
+			newX[a] = newX[b];
+			newX[b] = tmp;
+		}
+		double curCost = 0.0;
+		index = first;
+		for (int i=0; i<5; i++){
+			curCost += W[index][newX[i]];
+			index = newX[i];
+		}
+		if (curCost < firstCost){
+			// printf("change X 			-- strat --\n");
+			index = first;
+			for (int i=0; i<5; i++){
+				a.x[index] = newX[i];
+				index = newX[i];
+			}
+			// printf("F_tot Cost : %f\n", a.get_cost());
+			a.cal_cost();
+			// printf("Befor_tot Cost : %f\n", a.get_cost());	
+		}
 	}
-
 }
 
 
@@ -253,9 +291,7 @@ int main(){
 	list<Path>::iterator itor = p.begin();
 	list<Path>::iterator itor2;
 
-	random_device rd;
-	mt19937 gen(rd());
-	uniform_int_distribution<int> dis(0, 999);
+
 
 	vector<int> aa;
 
@@ -267,7 +303,7 @@ int main(){
 	// p.push_back(pa);
 
 	Path pa;
-	for (int k=0; k<10; k++){
+	for (int k=0; k<N; k++){
 		aa.assign(1000, -1);
 		int index = dis(gen);
 		int firstI = index;
@@ -289,28 +325,35 @@ int main(){
 
 	p.sort(comper);
 ///////////////////////////////////////////////////////////
-	for (itor=p.begin(); itor!=p.end(); itor++){
-		printf("%.16f, %.16f\n", itor->get_cost(), itor->get_bestcost());
+	// for (itor=p.begin(); itor!=p.end(); itor++){
+	// 	printf("%.16f, %.16f\n", itor->get_cost(), itor->get_bestcost());
 		// double tcost = 0;
 		// for (int i=0; i<100; i++){tcost += itor->cost[i];}
 		// printf("%.16f ,\n", tcost);
 		// printf("%d %d\n", itor->get_firstIndex(), itor->get_lastIndex());
-	}
+	// }
 ///////////////////////////////////////////////////////////
-	for (int c=0; c<10; c++){
+	for (int c=0; c<1000; c++){
 		itor = itor2 = p.begin();
 		itor2++;
-		for (int i=0; i<5; i++){
+		for (int i=0; i<N/2; i++){
 			if (itor->get_bestcost() < itor2->get_bestcost()){
 				p.push_back(crossover(*itor, *itor2));
 			} else {
 				p.push_back(crossover(*itor2, *itor));
 			}
-			printf("Crossover : %16.f\n", p.back().get_cost());
+			// printf("Crossover : %16.f\n", p.back().get_cost());
 			itor++;
+			itor++;
+			itor2++;
 			itor2++;
 		}
 
+		p.sort(comper);
+
+		for (itor=p.begin(); itor!=p.end(); itor++){
+			mutation(*itor);
+		}
 		p.sort(comper);
 		for (itor=p.begin(); itor!=p.end(); itor++){
 			for (itor2=itor; itor2!=p.end();){
@@ -320,7 +363,7 @@ int main(){
 				}
 			}
 		}
-		while(p.size()>10) {p.pop_back();}
+		while(p.size()>N) {p.pop_back();}
 
 		printf("GEN %d : %.16f\n", c, p.front().get_cost());
 	}
@@ -337,8 +380,6 @@ int main(){
 		index = j;
 	}
 	fs.close();
-	
-
 	
 	return 0;
 }
