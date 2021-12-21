@@ -48,6 +48,7 @@ class Path{
 	bool operator> (Path& pa);
 	bool operator>= (Path& pa);
 	bool operator== (Path& pa);
+	bool operator!= (Path& pa);
 };
 
 Path::Path(){
@@ -83,19 +84,14 @@ void Path::repath(vector<int> a){
 }
 
 void Path::cal_cost(){
-	printf("index sum : ");
 	tot_cost = 0;
 	firstIndex = 0;
-	lastIndex = S-1;
 	best_cost = 0;
 	double curcost = 0;
-
-	int totsum=0;
 
 	int j = 0, k = 0;
 
 	for (int i=0; i<S; i++){
-		totsum+=j;
 		tot_cost += W[j][x[j]];
 		j = x[j];
 	}
@@ -105,8 +101,7 @@ void Path::cal_cost(){
 
 	int newfirst = 0;
 	for (int i=S; i<1000; i++){
-		totsum+=j;
-		int curdist = W[j][x[j]];
+		double curdist = W[j][x[j]];
 		tot_cost += curdist;
 
 		curcost = curcost + curdist - W[newfirst][x[newfirst]];
@@ -119,8 +114,6 @@ void Path::cal_cost(){
 		j = x[j];
 		newfirst = x[newfirst];
 	}
-
-	printf("%d\n", totsum);
 }
 
 bool Path::operator> (Path& pa){
@@ -134,8 +127,12 @@ bool Path::operator>= (Path& pa){
 }
 
 bool Path::operator== (Path& pa){
-	if (this->tot_cost == pa.tot_cost) {return true;}
-	else {return false;}
+	return tot_cost == pa.tot_cost;
+}
+
+bool Path::operator!= (Path& pa){
+	if (tot_cost == pa.tot_cost) {return false;}
+	else {return true;}
 }
 
 
@@ -147,7 +144,7 @@ bool comper(Path &a, Path &b){
 
 double checkCost(Path &pa, int index){
 	double costSum = 0.0;
-	for (int i=0; i<10; i++){
+	for (int i=0; i<3; i++){
 		costSum += W[index][pa.x[index]];
 		index = pa.x[index];
 	}
@@ -157,24 +154,20 @@ double checkCost(Path &pa, int index){
 Path crossover(Path &a, Path &b){  // a < b
 	vector<int> newX;
 	newX.assign(1000, -1);
-
-	int totsum=0;
 	
 	int index = a.get_firstIndex();
 
 	for (int i=0; i<S; i++){
-		totsum+=index;
 		newX[index] = a.x[index];
 		index = a.x[index];
 	}
 
-	for (int k=0; k<75; k++){
+	for (int k=S; k<1000; k++){
 		double a_cost = checkCost(a, index);
 		double b_cost = checkCost(b, index);
 
 		if (a_cost < b_cost){
-			for (int i=0; i<10; i++){
-				totsum+=index;
+			// for (int i=0; i<10; i++){
 				if (newX[a.x[index]] == -1){
 					newX[index] = a.x[index];
 					index = a.x[index];
@@ -193,10 +186,9 @@ Path crossover(Path &a, Path &b){  // a < b
 					newX[index] = minindex;
 					index = minindex;
 				}
-			}
+			// }
 		}else {
-			for (int i=0; i<10; i++){
-				totsum += index;
+			// for (int i=0; i<10; i++){
 				if (newX[b.x[index]] == -1){
 					newX[index] = b.x[index];
 					index = b.x[index];	
@@ -215,16 +207,22 @@ Path crossover(Path &a, Path &b){  // a < b
 					newX[index] = minindex;
 					index = minindex;
 				}
-			}
+			// }
 		}
 	}
 	// for (int i=0; i<1000; i++){
 	// 	printf("%d -> ", newX[i]);
 	// }
-	printf("sum : %d \n", totsum);
-
 	Path pa(newX);
+
 	return pa;
+}
+
+Path mutation(Path &a){
+	for (int i=0; i<100; i++){
+		double firstCost = checkCost(a, i*10);
+	}
+
 }
 
 
@@ -243,6 +241,7 @@ int main(){
         }
         vertex.push_back(row);
     }
+	data.close();
 
 	for (int i=0; i<1000; i++){
 		for (int j=i+1; j<1000; j++){
@@ -259,6 +258,7 @@ int main(){
 	uniform_int_distribution<int> dis(0, 999);
 
 	vector<int> aa;
+
 	// for (int i=0; i<999; i++){
 	// 	aa.push_back(i+1);
 	// }
@@ -301,19 +301,44 @@ int main(){
 		itor = itor2 = p.begin();
 		itor2++;
 		for (int i=0; i<5; i++){
-			printf("%.16f, %.16f\n", itor->get_cost(), itor2->get_cost());
-			p.push_back(crossover(*itor, *itor2));
-			printf("---Crossover--- : %.16f\n", p.back().get_cost());
+			if (itor->get_bestcost() < itor2->get_bestcost()){
+				p.push_back(crossover(*itor, *itor2));
+			} else {
+				p.push_back(crossover(*itor2, *itor));
+			}
+			printf("Crossover : %16.f\n", p.back().get_cost());
 			itor++;
 			itor2++;
 		}
+
 		p.sort(comper);
-		for (int i=0; i<5; i++) {p.pop_back();}
+		for (itor=p.begin(); itor!=p.end(); itor++){
+			for (itor2=itor; itor2!=p.end();){
+				itor2++;
+				if (*itor == *itor2){
+					itor2 = p.erase(itor2);
+				}
+			}
+		}
+		while(p.size()>10) {p.pop_back();}
 
-		printf("GEN%d : %.16f\n", c, p.front().get_cost());
+		printf("GEN %d : %.16f\n", c, p.front().get_cost());
 	}
+///////////////////////////////////////////////////////////
 
-	// free(W);
-	data.close();
+
+	fstream fs;
+	fs.open("solution_xy.csv", ios_base::out);
+	int index = 0;
+	for(int i=0; i<1000; i++){
+		int j = p.front().x[index];
+		fs << vertex[j][0]<<", "<< vertex[j][1] << endl;
+		fs << j << endl;
+		index = j;
+	}
+	fs.close();
+	
+
+	
 	return 0;
 }
