@@ -13,9 +13,9 @@ using namespace std;
 random_device rd;
 mt19937 gen(rd());
 uniform_int_distribution<int> dis(0, 999);
-uniform_int_distribution<int> dis_(0, 3);
+uniform_int_distribution<int> dis_(0, 5);
 
-#define S 50 // promising size
+#define S 10 // promising size
 #define N 20
 
 
@@ -34,6 +34,7 @@ class Path{
 	int firstIndex;
 	int lastIndex;
 	double best_cost;
+	double avg;
 
 
 	public :
@@ -45,6 +46,7 @@ class Path{
 
 	double get_cost();
 	double get_bestcost();
+	double get_avg();
 	int get_firstIndex();
 	int get_lastIndex();
 
@@ -65,6 +67,7 @@ Path::Path(){
 	lastIndex = -1;
 	tot_cost = 0;
 	best_cost = 0;
+	avg = 0;
 }
 
 Path::Path(vector<int> a){
@@ -81,6 +84,8 @@ double Path::get_cost(){return tot_cost;}
 
 double Path::get_bestcost(){return best_cost;}
 
+double Path::get_avg(){return avg;}
+
 int Path::get_firstIndex(){return firstIndex;}
 
 int Path::get_lastIndex(){return lastIndex;}
@@ -94,6 +99,7 @@ void Path::cal_cost(){
 	tot_cost = 0;
 	firstIndex = 0;
 	best_cost = 0;
+	avg = 0;
 	double curcost = 0;
 
 	int j = 0, k = 0;
@@ -121,6 +127,7 @@ void Path::cal_cost(){
 		j = x[j];
 		newfirst = x[newfirst];
 	}
+	avg = tot_cost/1000;
 }
 
 bool Path::operator> (Path& pa){
@@ -174,35 +181,11 @@ Path crossover(Path &a, Path &b){  // a < b
 		double b_cost = checkCost(b, index);
 
 		if (a_cost < b_cost){
-			// for (int i=0; i<10; i++){
-				if (newX[a.x[index]] == -1){
-					newX[index] = a.x[index];
-					index = a.x[index];
-				}else if (newX[b.x[index]] == -1){
-					newX[index] = b.x[index];
-					index = b.x[index];
-				}else {
-					double minimum = 200;
-					int minindex = a.get_firstIndex();
-					for (int j=0; j<1000; j++){
-						if ((W[index][j]<minimum)&&(index!=j)&&(newX[j]==-1)){
-							minimum = W[index][j];
-							minindex = j;
-						}
-					}
-					newX[index] = minindex;
-					index = minindex;
-				}
-			// }
-		}else {
-			// for (int i=0; i<10; i++){
+			if (W[index][a.x[index]] > a.get_avg()){
 				if (newX[b.x[index]] == -1){
 					newX[index] = b.x[index];
 					index = b.x[index];	
-				}else if (newX[a.x[index]] == -1){
-					newX[index] = a.x[index];
-					index = a.x[index];
-				}else {
+				} else{
 					double minimum = 200;
 					int minindex = a.get_firstIndex();
 					for (int j=0; j<1000; j++){
@@ -214,12 +197,61 @@ Path crossover(Path &a, Path &b){  // a < b
 					newX[index] = minindex;
 					index = minindex;
 				}
-			// }
+			}else if (newX[a.x[index]] == -1){
+				newX[index] = a.x[index];
+				index = a.x[index];
+			}else if (newX[b.x[index]] == -1){
+				newX[index] = b.x[index];
+				index = b.x[index];
+			}else {
+				double minimum = 200;
+				int minindex = a.get_firstIndex();
+				for (int j=0; j<1000; j++){
+					if ((W[index][j]<minimum)&&(index!=j)&&(newX[j]==-1)){
+						minimum = W[index][j];
+						minindex = j;
+					}
+				}
+				newX[index] = minindex;
+				index = minindex;
+			}
+		}else {
+			if (W[index][b.x[index]] > b.get_avg()){
+				if (newX[a.x[index]] == -1){
+					newX[index] = a.x[index];
+					index = a.x[index];	
+				} else{
+					double minimum = 200;
+					int minindex = a.get_firstIndex();
+					for (int j=0; j<1000; j++){
+						if ((W[index][j]<minimum)&&(index!=j)&&(newX[j]==-1)){
+							minimum = W[index][j];
+							minindex = j;
+						}
+					}
+					newX[index] = minindex;
+					index = minindex;
+				}
+			}else if (newX[b.x[index]] == -1){
+				newX[index] = b.x[index];
+				index = b.x[index];	
+			}else if (newX[a.x[index]] == -1){
+				newX[index] = a.x[index];
+				index = a.x[index];
+			}else {
+				double minimum = 200;
+				int minindex = a.get_firstIndex();
+				for (int j=0; j<1000; j++){
+					if ((W[index][j]<minimum)&&(index!=j)&&(newX[j]==-1)){
+						minimum = W[index][j];
+						minindex = j;
+					}
+				}
+				newX[index] = minindex;
+				index = minindex;
+			}
 		}
 	}
-	// for (int i=0; i<1000; i++){
-	// 	printf("%d -> ", newX[i]);
-	// }
 	Path pa(newX);
 
 	return pa;
@@ -230,13 +262,13 @@ void mutation(Path &a){
 		int first = dis(gen);
 		int index = first;
 		double firstCost = 0.0;
-		int newX[5];
-		for (int i=0; i<5; i++){
+		int newX[7];
+		for (int i=0; i<7; i++){
 			firstCost += W[index][a.x[index]];
 			index = a.x[index];
 			newX[i] = index;
 		}
-		for (int i=0; i<9; i++){
+		for (int i=0; i<20; i++){
 			int a = dis_(gen); 
 			int b = dis_(gen);
 			int tmp = newX[a];
@@ -245,14 +277,14 @@ void mutation(Path &a){
 		}
 		double curCost = 0.0;
 		index = first;
-		for (int i=0; i<5; i++){
+		for (int i=0; i<7; i++){
 			curCost += W[index][newX[i]];
 			index = newX[i];
 		}
 		if (curCost < firstCost){
 			// printf("change X 			-- strat --\n");
 			index = first;
-			for (int i=0; i<5; i++){
+			for (int i=0; i<7; i++){
 				a.x[index] = newX[i];
 				index = newX[i];
 			}
@@ -268,6 +300,7 @@ void mutation(Path &a){
 
 int main(){
 	ifstream data("TSP.csv");
+	fstream fs;
     string line;
 
     while(getline(data,line)){
@@ -293,14 +326,7 @@ int main(){
 
 
 
-	vector<int> aa;
-
-	// for (int i=0; i<999; i++){
-	// 	aa.push_back(i+1);
-	// }
-	// aa.push_back(0);
-	// Path pa(aa); // 0~999 순서대로
-	// p.push_back(pa);
+	vector<int> aa(1000);
 
 	Path pa;
 	for (int k=0; k<N; k++){
@@ -322,18 +348,24 @@ int main(){
 		pa.repath(aa);
 		p.push_back(pa);
 	}
+	for (int k=0; k<2; k++){
+		aa.assign(1000, -1);
+		int index = dis(gen);
+		int firstI = index;
+	}
 
 	p.sort(comper);
 ///////////////////////////////////////////////////////////
-	// for (itor=p.begin(); itor!=p.end(); itor++){
-	// 	printf("%.16f, %.16f\n", itor->get_cost(), itor->get_bestcost());
+	for (itor=p.begin(); itor!=p.end(); itor++){
+		printf("%.16f, %.16f\n", itor->get_cost(), itor->get_bestcost());
 		// double tcost = 0;
 		// for (int i=0; i<100; i++){tcost += itor->cost[i];}
 		// printf("%.16f ,\n", tcost);
 		// printf("%d %d\n", itor->get_firstIndex(), itor->get_lastIndex());
-	// }
+	}
 ///////////////////////////////////////////////////////////
-	for (int c=0; c<1000; c++){
+	fs.open("cost.csv", ios_base::out);
+	for (int c=0; c<10000; c++){
 		itor = itor2 = p.begin();
 		itor2++;
 		for (int i=0; i<N/2; i++){
@@ -366,17 +398,18 @@ int main(){
 		while(p.size()>N) {p.pop_back();}
 
 		printf("GEN %d : %.16f\n", c, p.front().get_cost());
+		fs << "GEN" << c << ", " << p.front().get_cost() << endl;
 	}
+	fs.close();
 ///////////////////////////////////////////////////////////
 
 
-	fstream fs;
+	
 	fs.open("solution_xy.csv", ios_base::out);
 	int index = 0;
 	for(int i=0; i<1000; i++){
 		int j = p.front().x[index];
-		fs << vertex[j][0]<<", "<< vertex[j][1] << endl;
-		fs << j << endl;
+		fs << vertex[j][0]<<", "<< vertex[j][1] << ", " << j << endl;
 		index = j;
 	}
 	fs.close();
