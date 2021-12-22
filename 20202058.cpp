@@ -10,13 +10,14 @@
 
 using namespace std;
 
+#define S 10 // promising size
+#define N 20
+
 random_device rd;
 mt19937 gen(rd());
 uniform_int_distribution<int> dis(0, 999);
 uniform_int_distribution<int> dis_(0, 5);
-
-#define S 10 // promising size
-#define N 20
+uniform_int_distribution<int> dis_2(0, N-1);
 
 
 vector<vector<double>> vertex;
@@ -156,6 +157,10 @@ bool comper(Path &a, Path &b){
 	return b>a;
 }
 
+bool eq(Path &a, Path &b){
+	return a==b;
+}
+
 double checkCost(Path &pa, int index){
 	double costSum = 0.0;
 	for (int i=0; i<10; i++){
@@ -181,7 +186,7 @@ Path crossover(Path &a, Path &b){  // a < b
 		double b_cost = checkCost(b, index);
 
 		if (a_cost < b_cost){
-			if (W[index][a.x[index]] > a.get_avg()){
+			if (W[index][a.x[index]] > a.get_avg()*2){
 				if (newX[b.x[index]] == -1){
 					newX[index] = b.x[index];
 					index = b.x[index];	
@@ -216,7 +221,7 @@ Path crossover(Path &a, Path &b){  // a < b
 				index = minindex;
 			}
 		}else {
-			if (W[index][b.x[index]] > b.get_avg()){
+			if (W[index][b.x[index]] > b.get_avg()*2){
 				if (newX[a.x[index]] == -1){
 					newX[index] = a.x[index];
 					index = a.x[index];	
@@ -387,14 +392,15 @@ int main(){
 			mutation(*itor);
 		}
 		p.sort(comper);
-		for (itor=p.begin(); itor!=p.end(); itor++){
-			for (itor2=itor; itor2!=p.end();){
-				itor2++;
-				if (*itor == *itor2){
-					itor2 = p.erase(itor2);
-				}
-			}
-		}
+		p.unique(eq);
+		// for (itor=p.begin(); itor!=p.end(); itor++){
+		// 	for (itor2=itor; itor2!=p.end();){
+		// 		itor2++;
+		// 		if (*itor == *itor2){
+		// 			itor2 = p.erase(itor2);
+		// 		}
+		// 	}
+		// }
 		while(p.size()>N) {p.pop_back();}
 
 		printf("GEN %d : %.16f\n", c, p.front().get_cost());
